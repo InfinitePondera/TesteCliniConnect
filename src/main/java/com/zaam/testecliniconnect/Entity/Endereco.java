@@ -37,8 +37,8 @@ public class Endereco {
     private String estado;
 
     @ManyToOne
-    @JoinColumn(name = "cliente_id")
-    private Cliente cliente;
+    @JoinColumn(name = "paciente_id")
+    private Paciente paciente;
 
     public Endereco(EnderecoDTO dto) {
         this.rua = dto.getRua();

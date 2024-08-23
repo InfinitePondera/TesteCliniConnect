@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Set;
 
 @Data
-public class ClienteDTO {
+public class PacienteDTO {
     private Long id;
 
     private String nome;

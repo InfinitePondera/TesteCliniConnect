@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.zaam</groupId>
-	<artifactId>TesteCliniconnect</artifactId>
+	<artifactId>teste-cliniconnect</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>TesteCliniconnect</name>
 	<description>TesteCliniconnect</description>
@@ -80,6 +80,11 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+					<image>
+						<env>
+							<BP_JVM_VERSION>${java.version}</BP_JVM_VERSION>
+						</env>
+					</image>
 				</configuration>
 			</plugin>
 		</plugins>

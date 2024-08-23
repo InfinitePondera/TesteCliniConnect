@@ -16,10 +16,10 @@ import java.util.Set;
 @Setter
 @ToString
 @RequiredArgsConstructor
-public class Cliente {
+public class Paciente {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "cliente_sequence")
-    @SequenceGenerator(name="cliente_sequence", sequenceName = "cli_seq")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "paciente_sequence")
+    @SequenceGenerator(name="paciente_sequence", sequenceName = "pac_seq")
     private Long id;
 
     @Column(name = "nome",  length = 255,  nullable = false, updatable = true)
@@ -28,7 +28,7 @@ public class Cliente {
     @Column(name = "sexo",  length = 255,  nullable = false, updatable = true)
     private SexoEnum sexo;
 
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.PERSIST, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "paciente", cascade = CascadeType.PERSIST, orphanRemoval = true, fetch = FetchType.LAZY)
     @ToString.Exclude
     private Set<Endereco> enderecos;
 
@@ -44,7 +44,7 @@ public class Cliente {
     @Column(name = "email",  length = 255,  nullable = false, updatable = true, unique = true)
     private String email;
 
-    public Cliente(ClienteDTO dto) {
+    public Paciente(PacienteDTO dto) {
         this.nome = dto.getNome();
         this.sexo = dto.getSexo();
         this.cpf = dto.getCpf();
@@ -59,8 +59,8 @@ public class Cliente {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        Cliente cliente = (Cliente) o;
-        return getId() != null && Objects.equals(getId(), cliente.getId());
+        Paciente paciente = (Paciente) o;
+        return getId() != null && Objects.equals(getId(), paciente.getId());
     }
 
     @Override
