@@ -22,6 +22,12 @@ public class PacienteService {
 
     private PacienteRepository pacienteRepository;
 
+    private EnderecoService enderecoService;
+
+    public PacienteService(PacienteRepository pacRepo) {
+        this.pacienteRepository = pacRepo;
+    }
+
     public Page<Paciente> getPacientesPaginated(int pageNum, int pageTam) {
         try {
             Pageable page = PageRequest.of(pageNum, pageTam);
@@ -50,6 +56,10 @@ public class PacienteService {
                 throw new DataNascimentoValidationFail();
             } else {
                 Paciente paciente = new Paciente(dto);
+                dto.getEnderecos().forEach(e -> {
+                    Endereco end = new Endereco(e);
+                    paciente.getEnderecos().add(end);
+                });
                 return pacienteRepository.save(paciente);
             }
         } catch (Exception e) {
@@ -86,14 +96,25 @@ public class PacienteService {
                     updPaciente.setNome(dto.getNome());
                     updPaciente.setSexo(dto.getSexo());
                     dto.getEnderecos().forEach(e -> {
-                        updEnderecos.add(new Endereco(e));
+                        Optional<Endereco> endOp = enderecoService.findEnderecoById(e.getId());
+                        if (endOp.isPresent()) {
+                            Endereco endUpd = endOp.get();
+                            endUpd.setRua(e.getRua());
+                            endUpd.setBairro(e.getBairro());
+                            endUpd.setNumero(e.getNumero());
+                            endUpd.setCidade(e.getCidade());
+                            endUpd.setEstado(e.getEstado());
+                            updEnderecos.add(endUpd);
+                        } else {
+                            throw new PacienteNotFoundException();
+                        }
                     });
                     updPaciente.setEnderecos(updEnderecos);
                     updPaciente.setCpf(dto.getCpf());
                     updPaciente.setCelular(dto.getCelular());
                     updPaciente.setDataNascimento(LocalDate.parse(dto.getDataNascimento()));
                     updPaciente.setEmail(dto.getEmail());
-
+                    enderecoService.addEndereco(updEnderecos);
                     return pacienteRepository.save(updPaciente);
                 } else {
                     throw new PacienteNotFoundException();
