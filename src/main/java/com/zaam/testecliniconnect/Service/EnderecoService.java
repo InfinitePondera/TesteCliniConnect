@@ -3,20 +3,16 @@ package com.zaam.testecliniconnect.Service;
 import com.zaam.testecliniconnect.Entity.Endereco;
 import com.zaam.testecliniconnect.Entity.EnderecoDTO;
 import com.zaam.testecliniconnect.Repository.EnderecoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class EnderecoService {
 
+    @Autowired
     private EnderecoRepository enderecoRepository;
-
-    public EnderecoService(EnderecoRepository endRepo) {
-        this.enderecoRepository = endRepo;
-    }
 
     public Optional<Endereco> findEnderecoById(Long id) {
         try {
@@ -27,9 +23,9 @@ public class EnderecoService {
         }
     }
 
-    public Set<Endereco> addEndereco(Set<Endereco> end) {
+    public List<Endereco> addEndereco(List<Endereco> end) {
         try {
-            Set<Endereco> ends = Collections.emptySet();
+            List<Endereco> ends = new ArrayList<>();
             end.forEach(e -> {
                 ends.add(enderecoRepository.save(e));
             });

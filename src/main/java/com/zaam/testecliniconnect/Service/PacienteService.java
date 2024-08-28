@@ -5,6 +5,7 @@ import com.zaam.testecliniconnect.Entity.PacienteDTO;
 import com.zaam.testecliniconnect.Entity.Endereco;
 import com.zaam.testecliniconnect.Repository.PacienteRepository;
 import com.zaam.testecliniconnect.Util.ValidatorUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,20 +13,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class PacienteService {
 
+    @Autowired
     private PacienteRepository pacienteRepository;
 
+    @Autowired
     private EnderecoService enderecoService;
 
-    public PacienteService(PacienteRepository pacRepo) {
-        this.pacienteRepository = pacRepo;
+    @Autowired
+    public PacienteService(PacienteRepository pacienteRepository) {
+        this.pacienteRepository = pacienteRepository;
     }
 
     public Page<Paciente> getPacientesPaginated(int pageNum, int pageTam) {
@@ -40,7 +41,8 @@ public class PacienteService {
 
     public List<Paciente> getPacientesBySearchString(String searchString) {
         try {
-            return pacienteRepository.findPacientesByNomeLikeOrEmailLikeOrCpfLike(searchString, searchString, searchString);
+            List<Paciente> pacienteList = pacienteRepository.findPacientesByNomeLikeOrEmailLikeOrCpfLike(searchString, searchString, searchString);
+            return pacienteList;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -91,7 +93,7 @@ public class PacienteService {
                 Optional<Paciente> clt = pacienteRepository.findById(dto.getId());
                 if (clt.isPresent()) {
                     Paciente updPaciente = clt.get();
-                    Set<Endereco> updEnderecos = Collections.emptySet();
+                    List<Endereco> updEnderecos = new ArrayList<>();
 
                     updPaciente.setNome(dto.getNome());
                     updPaciente.setSexo(dto.getSexo());

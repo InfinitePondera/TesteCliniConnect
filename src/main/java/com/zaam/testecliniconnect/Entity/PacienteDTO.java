@@ -2,6 +2,7 @@ package com.zaam.testecliniconnect.Entity;
 
 import lombok.Data;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -12,7 +13,7 @@ public class PacienteDTO {
 
     private SexoEnum sexo;
 
-    private Set<EnderecoDTO> enderecos;
+    private List<EnderecoDTO> enderecos;
 
     private String cpf;
 

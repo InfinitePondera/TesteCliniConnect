@@ -3,27 +3,33 @@ package com.zaam.testecliniconnect;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaam.testecliniconnect.Controller.PacienteController;
 import com.zaam.testecliniconnect.Entity.*;
+import com.zaam.testecliniconnect.Repository.PacienteRepository;
 import com.zaam.testecliniconnect.Service.PacienteService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
+@ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
 @WebMvcTest(controllers = PacienteController.class)
 public class PacienteControllerUnitTests {
@@ -42,11 +48,11 @@ public class PacienteControllerUnitTests {
     public void init() {
         paciente1.setId(1L);
         paciente1.setSexo(SexoEnum.MASCULINO);
-        paciente1.setNome("João");
+        paciente1.setNome("Joao");
         paciente1.setEmail("joao@gmail.com");
         paciente1.setCpf("060.087.540-77");
         paciente1.setCelular("(43) 97966-6976");
-        paciente1.setDataNascimento("20/04/1969");
+        paciente1.setDataNascimento("1969-04-20");
         
         endereco1.setId(1L);
         endereco1.setRua("Rua Aleatoria");
@@ -55,7 +61,7 @@ public class PacienteControllerUnitTests {
         endereco1.setCidade("Londrina");
         endereco1.setEstado("PR");
         endereco1.setPaciente(paciente1);
-        Set<EnderecoDTO> enderecos1 = Collections.emptySet();
+        List<EnderecoDTO> enderecos1 = new ArrayList<>();
         enderecos1.add(endereco1);
         
         paciente1.setEnderecos(enderecos1);
@@ -77,7 +83,7 @@ public class PacienteControllerUnitTests {
         endereco2.setCidade("Joinville");
         endereco2.setEstado("SC");
         endereco2.setPaciente(paciente2);
-        Set<EnderecoDTO> enderecos2 = Collections.emptySet();
+        List<EnderecoDTO> enderecos2 = new ArrayList<>();
         enderecos1.add(endereco2);
 
         paciente2.setEnderecos(enderecos2);
@@ -85,13 +91,15 @@ public class PacienteControllerUnitTests {
 
     @Test
     public void givenSearchString_whenGetPacientes_thenStatus200() throws Exception {
+        List<Paciente> pacientesSearchString = Arrays.asList(new Paciente(paciente1));
+        Mockito.when(pacienteService.getPacientesBySearchString("Joao")).thenReturn(pacientesSearchString);
         this.mockMvc.perform(MockMvcRequestBuilders
                 .get("/pacientes/busca")
-                .param("searchString", "João")
+                .param("searchString", "Joao")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").exists())
-                .andExpect(jsonPath("$.content[*].id").isNotEmpty());
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].nome", is("Joao")));
     }
 
     @Test
@@ -141,7 +149,7 @@ public class PacienteControllerUnitTests {
     public void givenPaciente_whenPutPaciente_thenStatus404() throws Exception {
         this.mockMvc.perform(MockMvcRequestBuilders
                 .put("/pacientes")
-                .param("id", "9L")
+                .param("id", Long.toString(9L))
                         .content(asJsonString(paciente2))
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
@@ -151,7 +159,7 @@ public class PacienteControllerUnitTests {
     public void givenPaciente_whenPutPaciente_thenStatus400() throws Exception {
         this.mockMvc.perform(MockMvcRequestBuilders
                         .put("/pacientes")
-                        .param("id", "2L")
+                        .param("id", Long.toString(2L))
                         .content(asJsonString(paciente2))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -161,7 +169,7 @@ public class PacienteControllerUnitTests {
     public void givenPaciente_whenDeletePaciente_thenStatus200() throws Exception {
         this.mockMvc.perform(MockMvcRequestBuilders
                 .delete("/pacientes")
-                .param("id", "1L"))
+                .param("id", Long.toString(1L)))
                 .andExpect(status().isOk());
     }
 
@@ -169,7 +177,7 @@ public class PacienteControllerUnitTests {
     public void givenPaciente_whenDeletePaciente_thenStatus404() throws Exception {
         this.mockMvc.perform(MockMvcRequestBuilders
                         .delete("/pacientes")
-                        .param("id", "1L"))
+                        .param("id", Long.toString(1L)))
                 .andExpect(status().isNotFound());
     }
 

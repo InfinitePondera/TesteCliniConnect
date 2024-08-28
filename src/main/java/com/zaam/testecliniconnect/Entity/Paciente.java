@@ -8,6 +8,7 @@ import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -30,7 +31,7 @@ public class Paciente {
 
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.PERSIST, orphanRemoval = true, fetch = FetchType.LAZY)
     @ToString.Exclude
-    private Set<Endereco> enderecos;
+    private List<Endereco> enderecos;
 
     @Column(name = "cpf",  length = 255,  nullable = false, updatable = true, unique = true)
     private String cpf;

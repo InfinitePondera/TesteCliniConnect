@@ -3,7 +3,9 @@ package com.zaam.testecliniconnect.Controller;
 import com.zaam.testecliniconnect.Entity.Paciente;
 import com.zaam.testecliniconnect.Entity.PacienteDTO;
 import com.zaam.testecliniconnect.Service.PacienteService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.List;
 @CrossOrigin //mudar para endereco do front se nao causa problema CORS
 public class PacienteController {
 
+    @Autowired
     private PacienteService pacienteService;
 
     @RequestMapping(value = "/pacientes/pacientesPaginated", method = RequestMethod.GET)
@@ -25,9 +28,9 @@ public class PacienteController {
     }
 
     @RequestMapping(value = "/pacientes/busca", method = RequestMethod.GET)
-    public @ResponseBody List<Paciente> getPacientesBySearchString(@RequestParam("searchString") String searchString) {
+    public ResponseEntity<List<Paciente>> getPacientesBySearchString(@RequestParam("searchString") String searchString) {
         try {
-            return pacienteService.getPacientesBySearchString(searchString);
+            return ResponseEntity.ok(pacienteService.getPacientesBySearchString(searchString));
         } catch (Exception e) {
             e.printStackTrace();
             return null;
