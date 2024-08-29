@@ -14,13 +14,17 @@ public class EnderecoService {
     @Autowired
     private EnderecoRepository enderecoRepository;
 
-    public Optional<Endereco> findEnderecoById(Long id) {
+    public Optional<Endereco> findEnderecoById(long id) {
         try {
             return enderecoRepository.findById(id);
         } catch (Exception e) {
             e.printStackTrace();
             return Optional.empty();
         }
+    }
+
+    public List<Endereco> findEnderecosByPaciente(long id) {
+        return enderecoRepository.findEnderecosByPacienteId(id);
     }
 
     public List<Endereco> addEndereco(List<Endereco> end) {

@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
+@Table(name = "paciente")
 @Getter
 @Setter
 @ToString
@@ -21,7 +22,7 @@ public class Paciente {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "paciente_sequence")
     @SequenceGenerator(name="paciente_sequence", sequenceName = "pac_seq")
-    private Long id;
+    private long id;
 
     @Column(name = "nome",  length = 255,  nullable = false, updatable = true)
     private String nome;
@@ -29,8 +30,7 @@ public class Paciente {
     @Column(name = "sexo",  length = 255,  nullable = false, updatable = true)
     private SexoEnum sexo;
 
-    @OneToMany(mappedBy = "paciente", cascade = CascadeType.PERSIST, orphanRemoval = true, fetch = FetchType.LAZY)
-    @ToString.Exclude
+    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Endereco> enderecos;
 
     @Column(name = "cpf",  length = 255,  nullable = false, updatable = true, unique = true)
@@ -52,20 +52,5 @@ public class Paciente {
         this.celular = dto.getCelular();
         this.dataNascimento = LocalDate.parse(dto.getDataNascimento());
         this.email = dto.getEmail();
-    }
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        Paciente paciente = (Paciente) o;
-        return getId() != null && Objects.equals(getId(), paciente.getId());
-    }
-
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

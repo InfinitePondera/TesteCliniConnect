@@ -6,9 +6,7 @@ services:
       - 'POSTGRES_PASSWORD=lightmyfire'
       - 'POSTGRES_USER=postgres'
     ports:
-      - '16969:5432'
-    networks:
-      - teste-cliniconnect
+      - '35535:5432'
 
   backend:
     container_name: 'backend'
@@ -24,11 +22,5 @@ services:
       - 'SPRING_JPA_HIBERNATE_DDL_AUTO=update'
       - 'SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect'
     ports:
-      - '16970:8080'
-    networks:
-      - teste-cliniconnect
-
-networks:
-  teste-cliniconnect:
-    driver: bridge
+      - '35356:8080'
 

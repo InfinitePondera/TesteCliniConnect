@@ -7,7 +7,7 @@ import java.util.Set;
 
 @Data
 public class PacienteDTO {
-    private Long id;
+    private long id;
 
     private String nome;
 

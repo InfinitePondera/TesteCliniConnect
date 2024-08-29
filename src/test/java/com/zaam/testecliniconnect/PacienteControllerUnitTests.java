@@ -15,6 +15,10 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -26,6 +30,7 @@ import java.util.*;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -60,7 +65,7 @@ public class PacienteControllerUnitTests {
         endereco1.setBairro("Centro");
         endereco1.setCidade("Londrina");
         endereco1.setEstado("PR");
-        endereco1.setPaciente(paciente1);
+        endereco1.setPaciente(new PacienteEnderecoDTO(paciente1.getId()));
         List<EnderecoDTO> enderecos1 = new ArrayList<>();
         enderecos1.add(endereco1);
         
@@ -82,9 +87,9 @@ public class PacienteControllerUnitTests {
         endereco2.setBairro("Atiradores");
         endereco2.setCidade("Joinville");
         endereco2.setEstado("SC");
-        endereco2.setPaciente(paciente2);
+        endereco2.setPaciente(new PacienteEnderecoDTO(paciente2.getId()));
         List<EnderecoDTO> enderecos2 = new ArrayList<>();
-        enderecos1.add(endereco2);
+        enderecos2.add(endereco2);
 
         paciente2.setEnderecos(enderecos2);
     }
@@ -104,6 +109,9 @@ public class PacienteControllerUnitTests {
 
     @Test
     public void whenGetPacientesPaginated_thenStatus200() throws Exception {
+        List<Paciente> pacientesPageable = Arrays.asList(new Paciente(paciente1));
+        Page<Paciente> pacientePage = new PageImpl<Paciente>(pacientesPageable);
+        Mockito.when(pacienteService.getPacientesPaginated(1, 10)).thenReturn(pacientePage);
         this.mockMvc.perform(MockMvcRequestBuilders
                         .get("/pacientes/pacientesPaginated")
                         .param("pageNum", "1")
@@ -116,9 +124,13 @@ public class PacienteControllerUnitTests {
 
     @Test
     public void givenPaciente_whenPostPaciente_thenStatus201() throws Exception {
+        Paciente pacienteReturn = new Paciente(paciente1);
+        pacienteReturn.setId(paciente1.getId());
+        String requestBody = asJsonString(paciente1);
+        Mockito.when(pacienteService.savePaciente(paciente1)).thenReturn(pacienteReturn);
         this.mockMvc.perform(MockMvcRequestBuilders
                 .post("/pacientes")
-                .content(asJsonString(paciente1))
+                .content(requestBody)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.content").exists())

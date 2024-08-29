@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 public class ValidatorUtil {
     public static boolean ValidateEmail(String email) {
-        return Pattern.compile("^(.+)@(\\\\S+)$").matcher(email).matches();
+        return Pattern.compile("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$").matcher(email).matches();
     }
 
     public static boolean ValidateCPF(String cpf) {

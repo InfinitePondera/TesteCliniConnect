@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class EnderecoDTO {
-    private Long id;
+    private long id;
 
     private String rua;
 
@@ -16,5 +16,5 @@ public class EnderecoDTO {
 
     private String estado;
 
-    private PacienteDTO paciente;
+    private PacienteEnderecoDTO paciente;
 }
