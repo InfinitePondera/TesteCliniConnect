@@ -22,4 +22,7 @@ public class PacienteDTO {
     private String dataNascimento;
 
     private String email;
+
+    private String informacaoAtendimento;
+
 }

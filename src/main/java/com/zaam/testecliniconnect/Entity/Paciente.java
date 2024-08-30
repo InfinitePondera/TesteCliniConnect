@@ -45,6 +45,9 @@ public class Paciente {
     @Column(name = "email",  length = 255,  nullable = false, updatable = true, unique = true)
     private String email;
 
+    @Column(name = "informacao_atendimento", updatable = true)
+    private String informacaoAtendimento;
+
     public Paciente(PacienteDTO dto) {
         this.nome = dto.getNome();
         this.sexo = dto.getSexo();
@@ -52,5 +55,6 @@ public class Paciente {
         this.celular = dto.getCelular();
         this.dataNascimento = LocalDate.parse(dto.getDataNascimento());
         this.email = dto.getEmail();
+        this.informacaoAtendimento = dto.getInformacaoAtendimento();
     }
 }

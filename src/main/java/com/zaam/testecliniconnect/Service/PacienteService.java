@@ -109,6 +109,7 @@ public class PacienteService {
                 updPaciente.setCelular(dto.getCelular());
                 updPaciente.setDataNascimento(LocalDate.parse(dto.getDataNascimento()));
                 updPaciente.setEmail(dto.getEmail());
+                updPaciente.setInformacaoAtendimento(dto.getInformacaoAtendimento());
                 enderecoService.addEndereco(updEnderecos);
                 return pacienteRepository.save(updPaciente);
             } else {

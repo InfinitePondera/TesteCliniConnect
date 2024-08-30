@@ -21,9 +21,9 @@ public class PacienteController {
     private PacienteService pacienteService;
 
     @RequestMapping(value = "/pacientes/pacientesPaginated", method = RequestMethod.GET)
-    public @ResponseBody Page<Paciente> getPacientesPaginated(@RequestParam("pageNum") int pageNum, @RequestParam("pageTam") int pageTam) {
+    public ResponseEntity<Page<Paciente>> getPacientesPaginated(@RequestParam("pageNum") int pageNum, @RequestParam("pageTam") int pageTam) {
         try {
-            return pacienteService.getPacientesPaginated(pageNum, pageTam);
+            return ResponseEntity.status(HttpStatus.OK).body(pacienteService.getPacientesPaginated(pageNum, pageTam));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.toString(), e);
         }
@@ -48,18 +48,19 @@ public class PacienteController {
     }
 
     @RequestMapping(value = "/pacientes", method = RequestMethod.DELETE)
-    public void deletePacienteById(@RequestParam("id") String id) {
+    public ResponseEntity deletePacienteById(@RequestParam("id") String id) {
         try {
             pacienteService.deletePacienteById(Long.parseLong(id));
+            return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.toString(), e);
         }
     }
 
     @RequestMapping(value = "/pacientes", method = RequestMethod.PUT)
-    public @ResponseBody Paciente updatePacienteById(@RequestBody PacienteDTO dto) {
+    public ResponseEntity<Paciente> updatePacienteById(@RequestBody PacienteDTO dto) {
         try {
-            return pacienteService.updatePacienteById(dto);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(pacienteService.updatePacienteById(dto));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.toString(), e);
         }

@@ -19,11 +19,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -71,8 +73,6 @@ public class PacienteControllerUnitTests {
         
         paciente1.setEnderecos(enderecos1);
 
-        PacienteDTO paciente2 = new PacienteDTO();
-        EnderecoDTO endereco2 = new EnderecoDTO();
         paciente2.setId(2L);
         paciente2.setSexo(SexoEnum.FEMININO);
         paciente2.setNome("Maria");
@@ -111,10 +111,10 @@ public class PacienteControllerUnitTests {
     public void whenGetPacientesPaginated_thenStatus200() throws Exception {
         List<Paciente> pacientesPageable = Arrays.asList(new Paciente(paciente1));
         Page<Paciente> pacientePage = new PageImpl<Paciente>(pacientesPageable);
-        Mockito.when(pacienteService.getPacientesPaginated(1, 10)).thenReturn(pacientePage);
+        Mockito.when(pacienteService.getPacientesPaginated(0, 10)).thenReturn(pacientePage);
         this.mockMvc.perform(MockMvcRequestBuilders
                         .get("/pacientes/pacientesPaginated")
-                        .param("pageNum", "1")
+                        .param("pageNum", "0")
                         .param("pageTam", "10")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -131,54 +131,57 @@ public class PacienteControllerUnitTests {
         this.mockMvc.perform(MockMvcRequestBuilders
                 .post("/pacientes")
                 .content(requestBody)
+                .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.content").exists())
-                .andExpect(jsonPath("$.content[*].id").isNotEmpty());
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.id").isNotEmpty());
     }
 
     @Test
     public void givenPaciente_whenPostPaciente_thenStatus400()  throws Exception {
+        Paciente pacienteReturn = new Paciente(paciente2);
+        pacienteReturn.setId(paciente2.getId());
+        String requestBody = asJsonString(paciente2);
+        Mockito.when(pacienteService.savePaciente(paciente2)).thenThrow(new Exception("Cadastro invalido!"));
         this.mockMvc.perform(MockMvcRequestBuilders
                         .post("/pacientes")
-                        .content(asJsonString(paciente2))
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void givenPaciente_whenPutPaciente_thenStatus200() throws Exception {
+        Paciente pacienteReturn = new Paciente(paciente1);
+        pacienteReturn.setId(paciente1.getId());
+        String requestBody = asJsonString(paciente1);
+        Mockito.when(pacienteService.updatePacienteById(paciente1)).thenReturn(pacienteReturn);
         this.mockMvc.perform(MockMvcRequestBuilders
                 .put("/pacientes")
-                .param("id", "1L")
+                .content(requestBody)
+                .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").exists())
-                .andExpect(jsonPath("$.content[*].id").isNotEmpty());
+                .andExpect(status().isAccepted());
     }
-
-    @Test
-    public void givenPaciente_whenPutPaciente_thenStatus404() throws Exception {
-        this.mockMvc.perform(MockMvcRequestBuilders
-                .put("/pacientes")
-                .param("id", Long.toString(9L))
-                        .content(asJsonString(paciente2))
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-    }
-
     @Test
     public void givenPaciente_whenPutPaciente_thenStatus400() throws Exception {
+        Paciente pacienteReturn = new Paciente(paciente2);
+        pacienteReturn.setId(paciente2.getId());
+        String requestBody = asJsonString(paciente2);
+        Mockito.doThrow(new Exception()).when(pacienteService).updatePacienteById(paciente2);
         this.mockMvc.perform(MockMvcRequestBuilders
                         .put("/pacientes")
-                        .param("id", Long.toString(2L))
-                        .content(asJsonString(paciente2))
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void givenPaciente_whenDeletePaciente_thenStatus200() throws Exception {
+        Mockito.doNothing().when(pacienteService).deletePacienteById(1L);
         this.mockMvc.perform(MockMvcRequestBuilders
                 .delete("/pacientes")
                 .param("id", Long.toString(1L)))
@@ -186,11 +189,12 @@ public class PacienteControllerUnitTests {
     }
 
     @Test
-    public void givenPaciente_whenDeletePaciente_thenStatus404() throws Exception {
+    public void givenPaciente_whenDeletePaciente_thenStatus400() throws Exception {
+        Mockito.doThrow(new Exception()).when(pacienteService).deletePacienteById(9L);
         this.mockMvc.perform(MockMvcRequestBuilders
                         .delete("/pacientes")
-                        .param("id", Long.toString(1L)))
-                .andExpect(status().isNotFound());
+                        .param("id", Long.toString(9L)))
+                .andExpect(status().isBadRequest());
     }
 
     private String asJsonString(Object obj) {
