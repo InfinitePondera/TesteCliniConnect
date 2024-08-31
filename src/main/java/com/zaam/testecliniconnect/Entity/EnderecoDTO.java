@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class EnderecoDTO {
-    private long id;
+    private Long id;
 
     private String rua;
 

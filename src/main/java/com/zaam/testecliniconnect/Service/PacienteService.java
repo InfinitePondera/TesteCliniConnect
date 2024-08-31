@@ -30,17 +30,27 @@ public class PacienteService {
         this.pacienteRepository = pacienteRepository;
     }
 
-    public Page<Paciente> getPacientesPaginated(int pageNum, int pageTam) {
+    public Page<Paciente> getPacientesPaginated(int pageNum, int pageTam) throws Exception {
         Pageable page = PageRequest.of(pageNum, pageTam);
         return pacienteRepository.findAll(page);
     }
 
-    public List<Paciente> getPacientesBySearchString(String searchString) {
+    public List<Paciente> getPacientesBySearchString(String searchString) throws Exception {
+        searchString = "%"+searchString+"%";
         List<Paciente> pacienteList = pacienteRepository.findPacientesByNomeLikeOrEmailLikeOrCpfLike(searchString, searchString, searchString);
         pacienteList.forEach(p -> {
             p.setEnderecos(enderecoService.findEnderecosByPaciente(p.getId()));
         });
         return pacienteList;
+    }
+
+    public Optional<Paciente> getPacienteById(long id) throws Exception {
+        Optional<Paciente> pacienteOp = pacienteRepository.findById(id);
+        if (pacienteOp.isPresent()) {
+            Paciente paciente = pacienteOp.get();
+            paciente.setEnderecos(enderecoService.findEnderecosByPaciente(paciente.getId()));
+        }
+        return pacienteOp;
     }
 
     public Paciente savePaciente(PacienteDTO dto) throws Exception {
@@ -83,25 +93,33 @@ public class PacienteService {
             if (clt.isPresent()) {
                 Paciente updPaciente = clt.get();
                 List<Endereco> updEnderecos = new ArrayList<>();
+                List<Endereco> newEnderecos = new ArrayList<>();
 
                 updPaciente.setNome(dto.getNome());
                 updPaciente.setSexo(dto.getSexo());
                 dto.getEnderecos().forEach(e -> {
-                    Optional<Endereco> endOp = enderecoService.findEnderecoById(e.getId());
-                    if (endOp.isPresent()) {
-                        Endereco endUpd = endOp.get();
-                        endUpd.setRua(e.getRua());
-                        endUpd.setBairro(e.getBairro());
-                        endUpd.setNumero(e.getNumero());
-                        endUpd.setCidade(e.getCidade());
-                        endUpd.setEstado(e.getEstado());
-                        updEnderecos.add(endUpd);
-                    } else {
-                        try {
-                            throw new Exception("Endereço não encontrado!");
-                        } catch (Exception ex) {
-                            throw new RuntimeException(ex);
+                    if (e.getId() != null) {
+                        Optional<Endereco> endOp = enderecoService.findEnderecoById(e.getId());
+                        if (endOp.isPresent()) {
+                            Endereco endUpd = endOp.get();
+                            endUpd.setRua(e.getRua());
+                            endUpd.setBairro(e.getBairro());
+                            endUpd.setNumero(e.getNumero());
+                            endUpd.setCidade(e.getCidade());
+                            endUpd.setEstado(e.getEstado());
+                            updEnderecos.add(endUpd);
+                        } else {
+                            try {
+                                throw new Exception("Endereço não encontrado!");
+                            } catch (Exception ex) {
+                                throw new RuntimeException(ex);
+                            }
                         }
+                    } else {
+                        Endereco end = new Endereco(e);
+                        end.setPaciente(updPaciente);
+                        newEnderecos.add(end);
+                        updEnderecos.addAll(enderecoService.addEndereco(newEnderecos));
                     }
                 });
                 updPaciente.setEnderecos(updEnderecos);

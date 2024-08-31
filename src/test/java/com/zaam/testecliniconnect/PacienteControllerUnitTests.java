@@ -123,6 +123,28 @@ public class PacienteControllerUnitTests {
     }
 
     @Test
+    public void whenGetPacienteById_thenStatus200() throws Exception {
+        Mockito.when(pacienteService.getPacienteById(paciente1.getId())).thenReturn(Optional.of(new Paciente(paciente1)));
+        this.mockMvc.perform(MockMvcRequestBuilders
+                .get("/pacientes")
+                .param("id", String.valueOf(1L))
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.id").isNotEmpty());
+    }
+
+    @Test
+    public void whenGetPacienteById_thenStatus400() throws Exception {
+        Mockito.doThrow(new Exception()).when(pacienteService).getPacienteById(paciente1.getId());
+        this.mockMvc.perform(MockMvcRequestBuilders
+                .get("/pacientes")
+                .param("id", String.valueOf(99L))
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void givenPaciente_whenPostPaciente_thenStatus201() throws Exception {
         Paciente pacienteReturn = new Paciente(paciente1);
         pacienteReturn.setId(paciente1.getId());

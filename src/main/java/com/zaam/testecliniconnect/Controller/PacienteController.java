@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200") //mudar para endereco do front se nao causa problema CORS
@@ -24,6 +25,20 @@ public class PacienteController {
     public ResponseEntity<Page<Paciente>> getPacientesPaginated(@RequestParam("pageNum") int pageNum, @RequestParam("pageTam") int pageTam) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(pacienteService.getPacientesPaginated(pageNum, pageTam));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.toString(), e);
+        }
+    }
+
+    @RequestMapping(value = "/pacientes")
+    public ResponseEntity<Paciente> getPacienteById(@RequestParam("id") long id) {
+        try {
+            Optional<Paciente> pacOp = pacienteService.getPacienteById(id);
+            if(pacOp.isPresent()) {
+                return ResponseEntity.status(HttpStatus.OK).body(pacOp.get());
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.toString(), e);
         }
